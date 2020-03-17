@@ -37,7 +37,8 @@ void ExecuteSimpleOperationsKernel(
   std::array<cl_ulong, WORKSIZE> cTest;
   for(size_t i = 0; i < WORKSIZE; i++)
   {
-    cTest[i] = a[i] + b[i];
+    //cTest[i] = a[i] + b[i];
+    cTest[i] = a[i] - b[i];
   }
 
   for(size_t i = 0; i < WORKSIZE; i++)

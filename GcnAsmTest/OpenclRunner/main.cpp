@@ -2,8 +2,10 @@
 #define CL_HPP_TARGET_OPENCL_VERSION 200
 
 #include <cstdio>
+#include <cstdint>
 #include <string>
 #include <filesystem>
+#include <random>
 
 #include "CL/cl.h"
 #include "cl2.hpp"
@@ -28,10 +30,16 @@ int main(int argc, char* argv[])
   std::array<cl_ulong, WORKSIZE> a{}, b{}, c{};
   const cl_ulong highBytesBase = 0xDEADBEEF00000000ULL;
 
+  std::random_device rd;
+  std::mt19937_64 eng(rd());
+  std::uniform_int_distribution<uint64_t> distr;
+
   for(size_t i = 0; i < WORKSIZE; i++)
   {
-    a[i] = highBytesBase + 1024 + i;
-    b[i] = highBytesBase + 128 + i;
+    //a[i] = highBytesBase + 1024 + i;
+    //b[i] = highBytesBase + 128 + i;
+    a[i] = distr(eng);
+    b[i] = distr(eng);
   }
 
   try

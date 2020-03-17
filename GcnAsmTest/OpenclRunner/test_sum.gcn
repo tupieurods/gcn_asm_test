@@ -1,0 +1,66 @@
+/* Disassembling 'test.bin' */
+.amdcl2
+.gpu GFX900
+.64bit
+.arch_minor 0
+.arch_stepping 0
+.driver_version 223600
+.compile_options "-cl-std=CL2.0 -D__AMD__=1 -D__gfx900__=1 -D__gfx900=1 -D__IMAGE_SUPPORT__=1 -DFP_FAST_FMAF=1 -DFP_FAST_FMA=1 -DCL_DEVICE_MAX_GLOBAL_VARIABLE_SIZE=3820172032 -cl-denorms-are-zero -m64 -Dcl_khr_fp64=1 -Dcl_amd_fp64=1 -Dcl_khr_global_int32_base_atomics=1 -Dcl_khr_global_int32_extended_atomics=1 -Dcl_khr_local_int32_base_atomics=1 -Dcl_khr_local_int32_extended_atomics=1 -Dcl_khr_int64_base_atomics=1 -Dcl_khr_int64_extended_atomics=1 -Dcl_khr_3d_image_writes=1 -Dcl_khr_byte_addressable_store=1 -Dcl_khr_fp16=1 -Dcl_khr_gl_sharing=1 -Dcl_khr_gl_depth_images=1 -Dcl_amd_device_attribute_query=1 -Dcl_amd_vec3=1 -Dcl_amd_printf=1 -Dcl_amd_media_ops=1 -Dcl_amd_media_ops2=1 -Dcl_amd_popcnt=1 -Dcl_khr_d3d10_sharing=1 -Dcl_khr_d3d11_sharing=1 -Dcl_khr_dx9_media_sharing=1 -Dcl_khr_image2d_from_buffer=1 -Dcl_khr_subgroups=1 -Dcl_khr_gl_event=1 -Dcl_khr_depth_images=1 -Dcl_khr_mipmap_image=1 -Dcl_khr_mipmap_image_writes=1 -Dcl_amd_liquid_flash=1 -Dcl_amd_copy_buffer_p2p=1 -Dcl_amd_planar_yuv=1 "
+.acl_version "AMD-COMP-LIB-v0.8 (0.0.SC_BUILD_NUMBER)"
+.kernel testKernel
+    .config
+        .dims x
+        .cws 64, 1, 1
+        .sgprsnum 17 # decompiled with CLRX 0.1.9, so default policy is not 200 and scalars regs for VCC, FLAT_SCRATCH and XNACK_MASK are excluded from this number
+        .vgprsnum 7
+        .floatmode 0xc0
+        .pgmrsrc1 0x00ac0081
+        .pgmrsrc2 0x00000090 # 0x90 is 0b10010000. CLRX doc says that "The register 1-5 bits of PGM_RSRC2 indicates how many first scalar registers hold user data". Which in our case is equal to 01000 = 8. s[0:7] - user data
+        /*
+          According to https://clrx.nativeboinc.org/wiki2/wiki/wiki/GcnState "Scalar registers layout" section, since we have 17 sgprs
+          s[0:7] - User data registers
+          s8 - Group id, since we have ony 1 dimension being enabled
+          s9 - TGSIZE???
+          s10 - Scratch wave offset???
+          s[17:18] - FLAT_SCRATCH
+          s[19:20] - XNACK_MASK
+          s[21:22] - VCC
+        */
+        .dx10clamp
+        .ieeemode
+        .useargs
+        .priority 0
+        .arg _.global_offset_0, "size_t", long                          # offset 0
+        .arg _.global_offset_1, "size_t", long                          # offset 8
+        .arg _.global_offset_2, "size_t", long                          # offset 16
+        .arg _.printf_buffer, "size_t", void*, global, , rdonly         # offset 24
+        .arg _.vqueue_pointer, "size_t", long                           # offset 32
+        .arg _.aqlwrap_pointer, "size_t", long                          # offset 40
+        .arg A, "ulong*", ulong*, global, , rdonly                      # offset 48
+        .arg B, "ulong*", ulong*, global, , rdonly                      # offset 56
+        .arg C, "ulong*", ulong*, global,                               # offset 64
+    .text
+/*000000000000: c0060002 00000000*/ s_load_dwordx2  s[0:1], s[4:5], 0x0               # get_global_offset(0) ?
+/*000000000008: c00a0302 00000030*/ s_load_dwordx4  s[12:15], s[4:5], 0x30            # get pointer to A(s[12:13]) and pointer to B(s[14:15]).
+/*000000000010: c0060082 00000040*/ s_load_dwordx2  s[2:3], s[4:5], 0x40              # get pointer to C(s[2:3])
+/*000000000018: d1fd0000 04010c08*/ v_lshl_add_u32  v0, s8, 6, v0                     # v0, v1 and v2 by default holds local_id for each dimension. v0 = (s8 << 6) + v0 = s8 * 64 + v0. So we compute global_id(0)?
+/*000000000020: bf8cc07f         */ s_waitcnt       lgkmcnt(0)                        # wait for s_load_dwordxN operations to be finished
+/*000000000024: 68020000         */ v_add_u32       v1, s0, v0                        # v1 = s0 + v0. global_id(0) + global_offset(0)
+/*000000000028: 7e000280         */ v_mov_b32       v0, 0                             # v0 = 0
+/*00000000002c: d2910000 0002009d*/ v_ashrrev_i64   v[0:1], 29, v[0:1]                # v[0:1] = v[0:1] >> 29;(arithmetic) Would be used later for VADDR for global_load_dwordx2 and global_store_dwordx2. Shifted to the right by 29, because we coould intially store this value in v0 and shift left by 3, which means mul by 8, i.e. sizeof(ulong)
+/*000000000034: 3204000c         */ v_add_co_u32    v2, vcc, s12, v0                  # v2 = s12 + v0
+/*000000000038: 7e06020d         */ v_mov_b32       v3, s13                           # v3 = s13
+/*00000000003c: 38060303         */ v_addc_co_u32   v3, vcc, v3, v1, vcc              # v3 = v3 + v1 + carry flag from vcc. computed address in aBuf
+/*000000000040: 3208000e         */ v_add_co_u32    v4, vcc, s14, v0                  # v4 = s14 + v0
+/*000000000044: 7e0a020f         */ v_mov_b32       v5, s15                           # v5 = s15
+/*000000000048: 380a0305         */ v_addc_co_u32   v5, vcc, v5, v1, vcc              # v5 = v5 + v1 + carry flag from vcc. computed address in bBuf
+/*00000000004c: dc548000 027f0002*/ global_load_dwordx2 v[2:3], v[2:3], off           # load value from aBuf to v[2:3]
+/*000000000054: dc548000 047f0004*/ global_load_dwordx2 v[4:5], v[4:5], off           # load value from bBuf to v[4:5]
+/*00000000005c: 32000002         */ v_add_co_u32    v0, vcc, s2, v0                   # v0 = v2 + s0
+/*000000000060: 7e0c0203         */ v_mov_b32       v6, s3                            # v6 = s3
+/*000000000064: 38020306         */ v_addc_co_u32   v1, vcc, v6, v1, vcc              # v1 = v6 + v1 + carry flag from vcc. computed address in cBuf
+/*000000000068: bf8c0f70         */ s_waitcnt       vmcnt(0)                          # wait for global_load_dwordx2 operations to be finished
+/*00000000006c: 32040504         */ v_add_co_u32    v2, vcc, v4, v2                   # v2 = v4 + v2
+/*000000000070: 38060705         */ v_addc_co_u32   v3, vcc, v5, v3, vcc              # v3 = v5 + v3 + carry flag from vcc. computed A[idx] + B[idx]
+/*000000000074: dc748000 007f0200*/ global_store_dwordx2 v[0:1], v[2:3], off          # save computed result to cBuf
+/*00000000007c: bf810000         */ s_endpgm
