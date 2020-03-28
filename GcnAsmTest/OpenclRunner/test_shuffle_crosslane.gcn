@@ -73,6 +73,6 @@
 /*00000000008c: 32020806         */ v_add_co_u32    v3, vcc, s6, v4                 # v1 = s6 + v4. bBuffer pointer low bytes + offset for output
 /*000000000090: 7e040207         */ v_mov_b32       v4, s7                          # v2 = s7. bBuffer pointer high bytes
 /*000000000094: 38040b02         */ v_addc_co_u32   v4, vcc, v4, v5, vcc            # v2 = v2 + v5 + vcc. bBuffer pointer high bytes + offset for output + carry bit from low bytes sum
-/*000000000098: bf8cc07f         */ s_waitcnt       lgkmcnt(0)                      # wait for ds_read_b32 to be finished
+/*000000000098: bf8cc07f         */ s_waitcnt       lgkmcnt(0)                      # wait for ds_bpermute_b32 to be finished
 /*00000000009c: dc708000 007f0001*/ global_store_dword v[3:4], v0, off              # save v0 by v[1:2] address in global memory
 /*0000000000a4: bf810000         */ s_endpgm
