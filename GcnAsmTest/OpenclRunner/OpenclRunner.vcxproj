@@ -92,6 +92,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OpenclHelpers.cpp" />
     <ClCompile Include="posix.cc" />
+    <ClCompile Include="ShuffleOperations.cpp" />
     <ClCompile Include="SimpleOperations.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -109,6 +110,7 @@
     <ClInclude Include="fmt\printf.h" />
     <ClInclude Include="fmt\ranges.h" />
     <ClInclude Include="OpenclHelpers.h" />
+    <ClInclude Include="ShuffleOperations.h" />
     <ClInclude Include="SimpleOperations.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>

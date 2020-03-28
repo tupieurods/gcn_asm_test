@@ -36,6 +36,9 @@
     <ClCompile Include="posix.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ShuffleOperations.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OpenclHelpers.h">
@@ -85,6 +88,9 @@
     </ClInclude>
     <ClInclude Include="fmt\ranges.h">
       <Filter>Header Files\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="ShuffleOperations.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

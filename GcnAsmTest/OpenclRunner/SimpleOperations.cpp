@@ -9,7 +9,8 @@ void ExecuteSimpleOperationsKernel(
   cl::Buffer cBuffer,
   std::array<cl_ulong, WORKSIZE> a,
   std::array<cl_ulong, WORKSIZE> b,
-  std::array<cl_ulong, WORKSIZE> c
+  std::array<cl_ulong, WORKSIZE> c,
+  const int modeIndex
 )
 {
   CheckOpenclCall(cl::copy(commandQueue, a.begin(), a.end(), aBuffer), "copy to aBuffer from host");
@@ -37,8 +38,15 @@ void ExecuteSimpleOperationsKernel(
   std::array<cl_ulong, WORKSIZE> cTest;
   for(size_t i = 0; i < WORKSIZE; i++)
   {
-    //cTest[i] = a[i] + b[i];
-    cTest[i] = a[i] - b[i];
+    switch(modeIndex)
+    {
+    case 1:
+      cTest[i] = a[i] + b[i];
+      break;
+    case 2:
+      cTest[i] = a[i] - b[i];
+      break;
+    }
   }
 
   for(size_t i = 0; i < WORKSIZE; i++)

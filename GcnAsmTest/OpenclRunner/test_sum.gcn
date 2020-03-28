@@ -20,8 +20,8 @@
           According to https://clrx.nativeboinc.org/wiki2/wiki/wiki/GcnState "Scalar registers layout" section, since we have 17 sgprs
           s[0:7] - User data registers
           s8 - Group id, since we have ony 1 dimension being enabled
-          s9 - TGSIZE???
-          s10 - Scratch wave offset???
+          s9 - TGSIZE??? But it is probably not set, since bit 10 in .pgmrsrc2 is zero
+          s10 - Scratch wave offset??? But it is probably not set, since bit zero in .pgmrsrc2 is zero
           s[17:18] - FLAT_SCRATCH
           s[19:20] - XNACK_MASK
           s[21:22] - VCC

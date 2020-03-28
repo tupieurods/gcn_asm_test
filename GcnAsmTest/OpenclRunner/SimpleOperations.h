@@ -10,5 +10,6 @@ void ExecuteSimpleOperationsKernel(
   cl::Buffer cBuffer,
   std::array<cl_ulong, WORKSIZE> a,
   std::array<cl_ulong, WORKSIZE> b,
-  std::array<cl_ulong, WORKSIZE> c
+  std::array<cl_ulong, WORKSIZE> c,
+  const int modeIndex
 );

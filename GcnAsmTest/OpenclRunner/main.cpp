@@ -12,14 +12,15 @@
 
 #include "utils.h"
 #include "OpenclHelpers.h"
+#include "ShuffleOperations.h"
 #include "SimpleOperations.h"
 
 // TODO: Error handling
 int main(int argc, char* argv[])
 {
-  if(argc != 2)
+  if(argc != 3)
   {
-    printf("Usage: OpenclRunner.exe filename");
+    printf("Usage: OpenclRunner.exe filename mode");
     return 0;
   }
 
@@ -27,20 +28,12 @@ int main(int argc, char* argv[])
   const auto openclFileFullPath= std::filesystem::current_path().append(filename);
   const OpenclFileType openclFileType = openclFileFullPath.extension() == ".cl" ? OpenclFileType::Code : OpenclFileType::Binary;
 
-  std::array<cl_ulong, WORKSIZE> a{}, b{}, c{};
-  const cl_ulong highBytesBase = 0xDEADBEEF00000000ULL;
+  const int modeIndex = std::stoi(std::string(argv[2]));
 
   std::random_device rd;
   std::mt19937_64 eng(rd());
-  std::uniform_int_distribution<uint64_t> distr;
-
-  for(size_t i = 0; i < WORKSIZE; i++)
-  {
-    //a[i] = highBytesBase + 1024 + i;
-    //b[i] = highBytesBase + 128 + i;
-    a[i] = distr(eng);
-    b[i] = distr(eng);
-  }
+  std::uniform_int_distribution<uint64_t> distr64;
+  std::uniform_int_distribution<uint32_t> distr32;
 
   try
   {
@@ -59,18 +52,67 @@ int main(int argc, char* argv[])
     }
     const cl::Kernel kernel = CreateOpenclKernel(program, KERNEL_NAME);
 
-    cl_int status = CL_SUCCESS;
 
-    const cl::Buffer aBuffer(context, CL_MEM_READ_ONLY, sizeof(a), nullptr, &status);
-    CheckOpenclCall(status, "clCreateBuffer aBuffer");
+    switch(modeIndex)
+    {
+      case 1:
+      case 2:
+      {
+        std::array<cl_ulong, WORKSIZE> a{}, b{}, c{};
 
-    const cl::Buffer bBuffer(context, CL_MEM_READ_ONLY, sizeof(b), nullptr, &status);
-    CheckOpenclCall(status, "clCreateBuffer bBuffer");
+        for(size_t i = 0; i < WORKSIZE; i++)
+        {
+          //a[i] = highBytesBase + 1024 + i;
+          //b[i] = highBytesBase + 128 + i;
+          a[i] = distr64(eng);
+          b[i] = distr64(eng);
+        }
 
-    const cl::Buffer cBuffer(context, CL_MEM_WRITE_ONLY, sizeof(c), nullptr, &status);
-    CheckOpenclCall(status, "clCreateBuffer cBuffer");
+        cl_int status = CL_SUCCESS;
 
-    ExecuteSimpleOperationsKernel(commandQueue, kernel, aBuffer, bBuffer, cBuffer, a, b, c);
+        const cl::Buffer aBuffer(context, CL_MEM_READ_ONLY, sizeof(a), nullptr, &status);
+        CheckOpenclCall(status, "clCreateBuffer aBuffer");
+
+        const cl::Buffer bBuffer(context, CL_MEM_READ_ONLY, sizeof(b), nullptr, &status);
+        CheckOpenclCall(status, "clCreateBuffer bBuffer");
+
+        const cl::Buffer cBuffer(context, CL_MEM_WRITE_ONLY, sizeof(c), nullptr, &status);
+        CheckOpenclCall(status, "clCreateBuffer cBuffer");
+
+        ExecuteSimpleOperationsKernel(commandQueue, kernel, aBuffer, bBuffer, cBuffer, a, b, c, modeIndex);
+
+        break;
+      }
+      case 3:
+      {
+        std::array<cl_uint, WORKSIZE> a{}, b{};
+
+        for (size_t i = 0; i < WORKSIZE; i++)
+        {
+          //a[i] = highBytesBase + 1024 + i;
+          //b[i] = highBytesBase + 128 + i;
+          a[i] = distr32(eng);
+          b[i] = distr32(eng);
+        }
+
+        cl_int status = CL_SUCCESS;
+
+        const cl::Buffer aBuffer(context, CL_MEM_READ_ONLY, sizeof(a), nullptr, &status);
+        CheckOpenclCall(status, "clCreateBuffer aBuffer");
+
+        const cl::Buffer bBuffer(context, CL_MEM_WRITE_ONLY, sizeof(b), nullptr, &status);
+        CheckOpenclCall(status, "clCreateBuffer bBuffer");
+
+        ExecuteShuffleOperationsKernel(commandQueue, kernel, aBuffer, bBuffer, a, b);
+
+        break;
+      }
+      default:
+      {
+        printf("mode index %d is unknown.", modeIndex);
+        break;
+      }
+    }
   }
   catch(std::exception &e)
   {
