@@ -13,10 +13,11 @@
 #include "utils.h"
 #include "OpenclHelpers.h"
 #include "ShuffleOperations.h"
+#include "ShuffleOperations2.h"
 #include "SimpleOperations.h"
 
 // TODO: Error handling
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
   if(argc != 3)
   {
@@ -25,7 +26,7 @@ int main(int argc, char* argv[])
   }
 
   const std::string filename(argv[1]);
-  const auto openclFileFullPath= std::filesystem::current_path().append(filename);
+  const auto openclFileFullPath = std::filesystem::current_path().append(filename);
   const OpenclFileType openclFileType = openclFileFullPath.extension() == ".cl" ? OpenclFileType::Code : OpenclFileType::Binary;
 
   const int modeIndex = std::stoi(std::string(argv[2]));
@@ -87,7 +88,7 @@ int main(int argc, char* argv[])
       {
         std::array<cl_uint, WORKSIZE> a{}, b{};
 
-        for (size_t i = 0; i < WORKSIZE; i++)
+        for(size_t i = 0; i < WORKSIZE; i++)
         {
           //a[i] = highBytesBase + 1024 + i;
           //b[i] = highBytesBase + 128 + i;
@@ -104,6 +105,24 @@ int main(int argc, char* argv[])
         CheckOpenclCall(status, "clCreateBuffer bBuffer");
 
         ExecuteShuffleOperationsKernel(commandQueue, kernel, aBuffer, bBuffer, a, b);
+
+        break;
+      }
+      case 4:
+      {
+        std::array<cl_ulong, 8 * 128> a{};
+
+        for(size_t i = 0; i < 8 * 128; i++)
+        {
+          a[i] = distr64(eng);
+        }
+
+        cl_int status = CL_SUCCESS;
+
+        const cl::Buffer aBuffer(context, CL_MEM_READ_WRITE, sizeof(a), nullptr, &status);
+        CheckOpenclCall(status, "clCreateBuffer aBuffer");
+
+        ExecuteShuffleOperations2Kernel(commandQueue, kernel, aBuffer, a);
 
         break;
       }

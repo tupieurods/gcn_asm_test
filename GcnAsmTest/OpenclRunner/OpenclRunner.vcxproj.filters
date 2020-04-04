@@ -39,6 +39,9 @@
     <ClCompile Include="ShuffleOperations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ShuffleOperations2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OpenclHelpers.h">
@@ -90,6 +93,9 @@
       <Filter>Header Files\fmt</Filter>
     </ClInclude>
     <ClInclude Include="ShuffleOperations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShuffleOperations2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -19,21 +19,21 @@ void ExecuteShuffleOperationsKernel(
       commandQueue,
       cl::NDRange(WORKSIZE, 1, 1),
       cl::NDRange(WORKSIZE, 1, 1)
-      ),
+    ),
     aBuffer,
     bBuffer,
     status
-    );
+  );
   CheckOpenclCall(status, "Kernel execution");
   CheckOpenclCall(cl::copy(commandQueue, bBuffer, b.begin(), b.end()), "copy from bBuffer to host");
 
   std::array<cl_uint, WORKSIZE> bTest;
-  for (size_t i = 0; i < WORKSIZE; i++)
+  for(size_t i = 0; i < WORKSIZE; i++)
   {
     bTest[i] = a[ShuffleIndexes1[i]];
   }
 
-  for (size_t i = 0; i < WORKSIZE; i++)
+  for(size_t i = 0; i < WORKSIZE; i++)
   {
     const std::string message = fmt::format(
       "Index: {0}. Expected value: {1:#018x}. Actual value: {2:#018x}. {3}\n",
@@ -41,7 +41,7 @@ void ExecuteShuffleOperationsKernel(
       bTest[i],
       b[i],
       b[i] == bTest[i] ? "PASS" : "FAIL!!!!!!!!!!!!!!!!!!!!!"
-      );
+    );
     printf(message.c_str());
   }
 }
