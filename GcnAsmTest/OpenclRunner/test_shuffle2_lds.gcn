@@ -1,0 +1,106 @@
+/* Disassembling 'test_shuffle2.bin' */
+.amdcl2
+.gpu GFX900
+.64bit
+.arch_minor 0
+.arch_stepping 0
+.driver_version 223600
+.compile_options "-cl-std=CL2.0 -D__AMD__=1 -D__gfx900__=1 -D__gfx900=1 -D__IMAGE_SUPPORT__=1 -DFP_FAST_FMAF=1 -DFP_FAST_FMA=1 -DCL_DEVICE_MAX_GLOBAL_VARIABLE_SIZE=3820172032 -cl-denorms-are-zero -m64 -Dcl_khr_fp64=1 -Dcl_amd_fp64=1 -Dcl_khr_global_int32_base_atomics=1 -Dcl_khr_global_int32_extended_atomics=1 -Dcl_khr_local_int32_base_atomics=1 -Dcl_khr_local_int32_extended_atomics=1 -Dcl_khr_int64_base_atomics=1 -Dcl_khr_int64_extended_atomics=1 -Dcl_khr_3d_image_writes=1 -Dcl_khr_byte_addressable_store=1 -Dcl_khr_fp16=1 -Dcl_khr_gl_sharing=1 -Dcl_khr_gl_depth_images=1 -Dcl_amd_device_attribute_query=1 -Dcl_amd_vec3=1 -Dcl_amd_printf=1 -Dcl_amd_media_ops=1 -Dcl_amd_media_ops2=1 -Dcl_amd_popcnt=1 -Dcl_khr_d3d10_sharing=1 -Dcl_khr_d3d11_sharing=1 -Dcl_khr_dx9_media_sharing=1 -Dcl_khr_image2d_from_buffer=1 -Dcl_khr_subgroups=1 -Dcl_khr_gl_event=1 -Dcl_khr_depth_images=1 -Dcl_khr_mipmap_image=1 -Dcl_khr_mipmap_image_writes=1 -Dcl_amd_liquid_flash=1 -Dcl_amd_copy_buffer_p2p=1 -Dcl_amd_planar_yuv=1 "
+.acl_version "AMD-COMP-LIB-v0.8 (0.0.SC_BUILD_NUMBER)"
+.globaldata
+.gdata:
+    .byte 0x00, 0x01, 0x02, 0x03, 0x01, 0x02, 0x03, 0x00 # lindexes0 uchar array in __constant section
+    .byte 0x02, 0x03, 0x00, 0x01, 0x03, 0x00, 0x01, 0x02
+    .byte 0x04, 0x05, 0x06, 0x07, 0x05, 0x06, 0x07, 0x04
+    .byte 0x06, 0x07, 0x04, 0x05, 0x07, 0x04, 0x05, 0x06
+    .byte 0x08, 0x09, 0x0a, 0x0b, 0x09, 0x0a, 0x0b, 0x08
+    .byte 0x0a, 0x0b, 0x08, 0x09, 0x0b, 0x08, 0x09, 0x0a
+    .byte 0x0c, 0x0d, 0x0e, 0x0f, 0x0d, 0x0e, 0x0f, 0x0c
+    .byte 0x0e, 0x0f, 0x0c, 0x0d, 0x0f, 0x0c, 0x0d, 0x0e
+    .byte 0x10, 0x11, 0x12, 0x13, 0x11, 0x12, 0x13, 0x10
+    .byte 0x12, 0x13, 0x10, 0x11, 0x13, 0x10, 0x11, 0x12
+    .byte 0x14, 0x15, 0x16, 0x17, 0x15, 0x16, 0x17, 0x14
+    .byte 0x16, 0x17, 0x14, 0x15, 0x17, 0x14, 0x15, 0x16
+    .byte 0x18, 0x19, 0x1a, 0x1b, 0x19, 0x1a, 0x1b, 0x18
+    .byte 0x1a, 0x1b, 0x18, 0x19, 0x1b, 0x18, 0x19, 0x1a
+    .byte 0x1c, 0x1d, 0x1e, 0x1f, 0x1d, 0x1e, 0x1f, 0x1c
+    .byte 0x1e, 0x1f, 0x1c, 0x1d, 0x1f, 0x1c, 0x1d, 0x1e
+.kernel testKernel
+    .config
+        .dims z, xyz
+        .cws 32, 1, 8
+        .sgprsnum 13
+        .vgprsnum 19
+        .localsize 8192
+        .floatmode 0xc0
+        .pgmrsrc1 0x00ac0044
+        .pgmrsrc2 0x00001210
+        .dx10clamp
+        .ieeemode
+        .useargs
+        .priority 0
+        .arg _.global_offset_0, "size_t", long                        # offset 0
+        .arg _.global_offset_1, "size_t", long                        # offset 8
+        .arg _.global_offset_2, "size_t", long                        # offset 16
+        .arg _.printf_buffer, "size_t", void*, global, , rdonly       # offset 24
+        .arg _.vqueue_pointer, "size_t", long                         # offset 32
+        .arg _.aqlwrap_pointer, "size_t", long                        # offset 40
+        .arg matrixData, "block*", structure*, 1024, global,          # offset 48
+    .text
+# v0 - local_id(0); v1 - local_id(1); v2 - local_id(2)
+/*000000000000: c0060002 00000030*/ s_load_dwordx2  s[0:1], s[4:5], 0x30                    # get pointer to matrixData
+/*000000000008: d1fd0003 04090608*/ v_lshl_add_u32  v3, s8, 3, v2                           # v3 = (s8 << 3) + v2 = (group_id * 8 + local_id(2)); Would be used for matrixData offset computation
+/*000000000010: 24020082         */ v_lshlrev_b32   v1, 2, v0                               # v1 = v0 << 2 = v0 * 4 = local_id(0) * 4; Would be used for lindexes0 address computation
+/*000000000014: be8300ff 55555555*/ s_mov_b32       s3, .gdata>>32                          # high bytes of lindexes0 address
+/*00000000001c: be8200ff 55555555*/ s_mov_b32       s2, .gdata&0xffffffff                   # low bytes of lindexes0 address
+/*000000000024: 7e080280         */ v_mov_b32       v4, 0                                   # v4 = 0
+/*000000000028: d28f0003 0002068a*/ v_lshlrev_b64   v[3:4], 10, v[3:4]                      # v[3:4] = v[3:4] << 10 = v[3:4] * 1024; Bytes offset in matrixData based on index
+/*000000000030: 241a0083         */ v_lshlrev_b32   v13, 3, v0                              # v13 = v0 << 3 = local_id(0) * 8; Would be used for matrixData and LDS address computation
+/*000000000034: 32000202         */ v_add_co_u32    v0, vcc, s2, v1                         # v0 = s2 + v1; low bytes of lindexes0 + lower part of offset
+/*000000000038: 7e020203         */ v_mov_b32       v1, s3                                  # v1 = s3;
+/*00000000003c: d11c6a01 01a90101*/ v_addc_co_u32   v1, vcc, v1, 0, vcc                     # v1 = v1 + 0 + vcc; high bytes of lindexes0 + carry bit from lower part
+/*000000000044: bf8cc07f         */ s_waitcnt       lgkmcnt(0)                              # wait for s_load_dwordx2 to be finished
+/*000000000048: 32160600         */ v_add_co_u32    v11, vcc, s0, v3                        # v11 = s0 + v3; low part of address in matrixData
+/*00000000004c: 7e060201         */ v_mov_b32       v3, s1                                  # v3 = s1
+/*000000000050: 38180903         */ v_addc_co_u32   v12, vcc, v3, v4, vcc                   # v12 = v3 + v4 + vcc; high part of address in matrixData
+/*000000000054: 68061aff 00000100*/ v_add_u32       v3, 0x100, v13                          # v3 = v13 + 0x100 = v13 + 256; 256 = 32 * 8, where 8 is size of ulong and we have to skip 32 elements
+/*00000000005c: 3206070b         */ v_add_co_u32    v3, vcc, v11, v3                        # v3 = v11 + v3; low part of matrixData address for localIdx1 element
+/*000000000060: d11c6a04 01a9010c*/ v_addc_co_u32   v4, vcc, v12, 0, vcc                    # v4 = v12 + 0 + vcc; higher part of matrixData address for localIdx1 element
+/*000000000068: dc488001 0e7f0000*/ global_load_ushort v14, v[0:1], off inst_offset:1       # load lindexes0[local_id(0)][1] and lindexes0[local_id(0)][2]
+/*000000000070: dc548000 057f0003*/ global_load_dwordx2 v[5:6], v[3:4], off                 # load matrixData[localIdx1]
+/*000000000078: 680e1aff 00000200*/ v_add_u32       v7, 0x200, v13
+/*000000000080: 320e0f0b         */ v_add_co_u32    v7, vcc, v11, v7
+/*000000000084: d11c6a08 01a9010c*/ v_addc_co_u32   v8, vcc, v12, 0, vcc                    # v[7:8] - matrixData address for localIdx2 element
+/*00000000008c: dc548000 097f0007*/ global_load_dwordx2 v[9:10], v[7:8], off                # load matrixData[localIdx2]
+/*000000000094: 681e1aff 00000300*/ v_add_u32       v15, 0x300, v13
+/*00000000009c: 32221f0b         */ v_add_co_u32    v17, vcc, v11, v15
+/*0000000000a0: d11c6a12 01a9010c*/ v_addc_co_u32   v18, vcc, v12, 0, vcc                   # v[17:18] - matrixData address for localIdx3 element
+/*0000000000a8: dc408003 0f7f0000*/ global_load_ubyte v15, v[0:1], off inst_offset:3        # load lindexes0[local_id(0)][3]
+/*0000000000b0: dc548000 0b7f0011*/ global_load_dwordx2 v[11:12], v[17:18], off             # load matrixData[localIdx3]
+/*0000000000b8: 2404048a         */ v_lshlrev_b32   v2, 10, v2                              # v2 = v2 << 10 = v2 * 1024; LDS base offset
+/*0000000000bc: 681a1b02         */ v_add_u32       v13, v2, v13                            # v13 = v2 + v13 = local_id(2) * 1024 + local_id(0) * 8; Write position in LDS
+/*0000000000c0: bf8c0f74         */ s_waitcnt       vmcnt(4)                                # wait for global_load_ushort to be finished
+/*0000000000c4: d1c80010 0221010e*/ v_bfe_u32       v16, v14, 0, 8                          # extract fist byte of v14 to v16. This is read index for localIdx1
+/*0000000000cc: d1fd0010 04090710*/ v_lshl_add_u32  v16, v16, 3, v2                         # v16 = (v16 << 3) + v2; Read postion in LDS for localIdx1
+/*0000000000d4: bf8c0f73         */ s_waitcnt       vmcnt(3)                                # wait for matrixData[localIdx1] loading to be finished
+/*0000000000d8: d89a0000 0000050d*/ ds_write_b64    v13, v[5:6]                             # LDS[v13] = v[5:6];
+/*0000000000e0: bf8a0000         */ s_barrier                                               # syncthreads in workgroup, so all 256 threads will 
+/*0000000000e4: d8ec0000 05000010*/ ds_read_b64     v[5:6], v16                             # v[5:6] = LDS[v16]
+/*0000000000ec: d1c8000e 0221110e*/ v_bfe_u32       v14, v14, 8, 8                          # extract second byte from v14 to v14
+/*0000000000f4: bf8cc07f         */ s_waitcnt       lgkmcnt(0)                              # wait for lds operations to be finsihed
+/*0000000000f8: d1fd000e 0409070e*/ v_lshl_add_u32  v14, v14, 3, v2                         # v14 = (v14 << 3) + v2; Read postion in LDS for localIdx2
+/*000000000100: bf8a0000         */ s_barrier                                               # syncthreads inside workgroup
+/*000000000104: d89a0000 0000090d*/ ds_write_b64    v13, v[9:10]                            # LDS[v13] = v[9:10]
+/*00000000010c: bf8a0000         */ s_barrier
+/*000000000110: d8ec0000 0900000e*/ ds_read_b64     v[9:10], v14                            # v[9:10] = LDS[14]
+/*000000000118: bf8cc07f         */ s_waitcnt       lgkmcnt(0)                              # wait for lds operations to be finsihed
+/*00000000011c: d1fd0002 0409070f*/ v_lshl_add_u32  v2, v15, 3, v2                          # v2 = (v15 << 3) + v2; Read position in LDS for localIdx3
+/*000000000124: bf8a0000         */ s_barrier
+/*000000000128: d89a0000 00000b0d*/ ds_write_b64    v13, v[11:12]                           # LDS[v13] = v[11:12]
+/*000000000130: bf8a0000         */ s_barrier
+/*000000000134: d8ec0000 0b000002*/ ds_read_b64     v[11:12], v2                            # v[11:12] = LDS[v2]
+/*00000000013c: bf8a0000         */ s_barrier
+/*000000000140: dc748000 007f0503*/ global_store_dwordx2 v[3:4], v[5:6], off
+/*000000000148: dc748000 007f0907*/ global_store_dwordx2 v[7:8], v[9:10], off
+/*000000000150: dc748000 007f0b11*/ global_store_dwordx2 v[17:18], v[11:12], off
+/*000000000158: bf810000         */ s_endpgm

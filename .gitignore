@@ -118,4 +118,10 @@ ServiceFabricBackup/
 /GcnAsmTest/OpenclRunner/posix.cc
 /GcnAsmTest/OpenclRunner/cl2.hpp
 
+/GcnAsmTest/OpenclRunner/CLRXAmdAsm.dll
+/GcnAsmTest/OpenclRunner/CLRXAmdBin.dll
+/GcnAsmTest/OpenclRunner/CLRXUtils.dll
+/GcnAsmTest/OpenclRunner/clrxasm.exe
+/GcnAsmTest/OpenclRunner/clrxdisasm.exe
+
 # Exclude some important data from ignoring

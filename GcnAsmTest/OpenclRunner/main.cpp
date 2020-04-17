@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
 
   std::random_device rd;
   std::mt19937_64 eng(rd());
+  //std::mt19937_64 eng(10);
   std::uniform_int_distribution<uint64_t> distr64;
   std::uniform_int_distribution<uint32_t> distr32;
 

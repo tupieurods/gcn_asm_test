@@ -1,0 +1,118 @@
+/* Disassembling 'test_shuffle2.bin' */
+.amdcl2
+.gpu GFX900
+.64bit
+.arch_minor 0
+.arch_stepping 0
+.driver_version 223600
+.compile_options "-cl-std=CL2.0 -D__AMD__=1 -D__gfx900__=1 -D__gfx900=1 -D__IMAGE_SUPPORT__=1 -DFP_FAST_FMAF=1 -DFP_FAST_FMA=1 -DCL_DEVICE_MAX_GLOBAL_VARIABLE_SIZE=3820172032 -cl-denorms-are-zero -m64 -Dcl_khr_fp64=1 -Dcl_amd_fp64=1 -Dcl_khr_global_int32_base_atomics=1 -Dcl_khr_global_int32_extended_atomics=1 -Dcl_khr_local_int32_base_atomics=1 -Dcl_khr_local_int32_extended_atomics=1 -Dcl_khr_int64_base_atomics=1 -Dcl_khr_int64_extended_atomics=1 -Dcl_khr_3d_image_writes=1 -Dcl_khr_byte_addressable_store=1 -Dcl_khr_fp16=1 -Dcl_khr_gl_sharing=1 -Dcl_khr_gl_depth_images=1 -Dcl_amd_device_attribute_query=1 -Dcl_amd_vec3=1 -Dcl_amd_printf=1 -Dcl_amd_media_ops=1 -Dcl_amd_media_ops2=1 -Dcl_amd_popcnt=1 -Dcl_khr_d3d10_sharing=1 -Dcl_khr_d3d11_sharing=1 -Dcl_khr_dx9_media_sharing=1 -Dcl_khr_image2d_from_buffer=1 -Dcl_khr_subgroups=1 -Dcl_khr_gl_event=1 -Dcl_khr_depth_images=1 -Dcl_khr_mipmap_image=1 -Dcl_khr_mipmap_image_writes=1 -Dcl_amd_liquid_flash=1 -Dcl_amd_copy_buffer_p2p=1 -Dcl_amd_planar_yuv=1 "
+.acl_version "AMD-COMP-LIB-v0.8 (0.0.SC_BUILD_NUMBER)"
+.globaldata
+.gdata:
+    .byte 0x00, 0x01, 0x02, 0x03, 0x01, 0x02, 0x03, 0x00 # lindexes0 uchar array in __constant section
+    .byte 0x02, 0x03, 0x00, 0x01, 0x03, 0x00, 0x01, 0x02
+    .byte 0x04, 0x05, 0x06, 0x07, 0x05, 0x06, 0x07, 0x04
+    .byte 0x06, 0x07, 0x04, 0x05, 0x07, 0x04, 0x05, 0x06
+    .byte 0x08, 0x09, 0x0a, 0x0b, 0x09, 0x0a, 0x0b, 0x08
+    .byte 0x0a, 0x0b, 0x08, 0x09, 0x0b, 0x08, 0x09, 0x0a
+    .byte 0x0c, 0x0d, 0x0e, 0x0f, 0x0d, 0x0e, 0x0f, 0x0c
+    .byte 0x0e, 0x0f, 0x0c, 0x0d, 0x0f, 0x0c, 0x0d, 0x0e
+    .byte 0x10, 0x11, 0x12, 0x13, 0x11, 0x12, 0x13, 0x10
+    .byte 0x12, 0x13, 0x10, 0x11, 0x13, 0x10, 0x11, 0x12
+    .byte 0x14, 0x15, 0x16, 0x17, 0x15, 0x16, 0x17, 0x14
+    .byte 0x16, 0x17, 0x14, 0x15, 0x17, 0x14, 0x15, 0x16
+    .byte 0x18, 0x19, 0x1a, 0x1b, 0x19, 0x1a, 0x1b, 0x18
+    .byte 0x1a, 0x1b, 0x18, 0x19, 0x1b, 0x18, 0x19, 0x1a
+    .byte 0x1c, 0x1d, 0x1e, 0x1f, 0x1d, 0x1e, 0x1f, 0x1c
+    .byte 0x1e, 0x1f, 0x1c, 0x1d, 0x1f, 0x1c, 0x1d, 0x1e
+.kernel testKernel
+    .config
+        .dims z, xyz
+        .cws 32, 1, 8
+        .sgprsnum 13
+        .vgprsnum 16
+        .floatmode 0xc0
+        .dx10clamp
+        .ieeemode
+        .useargs
+        .priority 0
+        .arg _.global_offset_0, "size_t", long                        # offset 0
+        .arg _.global_offset_1, "size_t", long                        # offset 8
+        .arg _.global_offset_2, "size_t", long                        # offset 16
+        .arg _.printf_buffer, "size_t", void*, global, , rdonly       # offset 24
+        .arg _.vqueue_pointer, "size_t", long                         # offset 32
+        .arg _.aqlwrap_pointer, "size_t", long                        # offset 40
+        .arg matrixData, "block*", structure*, 1024, global,          # offset 48
+    .text
+# v0 - local_id(0); v1 - local_id(1); v2 - local_id(2)
+s_load_dwordx2  s[0:1], s[4:5], 0x30                    # get pointer to matrixData
+v_lshl_add_u32  v3, s8, 3, v2                           # gid
+v_lshlrev_b32   v1, 2, v0                               # offset in lindexes0
+s_mov_b32       s3, .gdata>>32                          # high bytes of lindexes0 address
+s_mov_b32       s2, .gdata&0xffffffff                   # low bytes of lindexes0 address
+v_mov_b32       v4, 0
+v_lshlrev_b64   v[3:4], 10, v[3:4]                      # base offset in matrixData
+v_lshlrev_b32   v5, 3, v0                               # local_id(0) * 8
+v_add_co_u32    v0, vcc, s2, v1
+v_mov_b32       v1, s3
+v_addc_co_u32   v1, vcc, v1, 0, vcc                     # v[0:1] - pointer to correct lindexes row
+v_add_co_u32    v3, vcc, v5, v3
+v_addc_co_u32   v4, vcc, v4, 0, vcc                     # v[3:4] - gid base offset + local_id(0) base offset in matrixData
+s_waitcnt       lgkmcnt(0)                              # wait for s_load_dwordx2 to be finished
+v_add_co_u32    v3, vcc, s0, v3
+v_mov_b32       v5, s1
+v_addc_co_u32    v4, vcc, v5, v4, vcc                   # matrixData pointer + base offsets
+v_add_co_u32    v5, vcc, 0x100, v3
+v_addc_co_u32   v6, vcc, v4, 0, vcc                     # matrixData->v[localIdx1] address
+global_load_dword v9, v[0:1], off
+global_load_dwordx2 v[7:8], v[5:6], off
+
+v_add_co_u32    v10, vcc, 0x200, v3
+v_addc_co_u32   v11, vcc, v4, 0, vcc                     # matrixData->v[localIdx2] address
+global_load_dwordx2 v[12:13], v[10:11], off
+
+v_add_co_u32    v3, vcc, 0x300, v3
+v_addc_co_u32   v4, vcc, v4, 0, vcc                     # matrixData->v[localIdx3] address
+global_load_dwordx2 v[14:15], v[3:4], off
+
+v_mbcnt_lo_u32_b32  v2, -1, 0
+v_mbcnt_hi_u32_b32  v2, -1, v2                          # v2 = laneId
+v_lshrrev_b32       v2, 5, v2
+v_lshlrev_b32       v2, 5, v2
+
+s_waitcnt       vmcnt(3)
+
+v_bfe_u32       v0, v9, 8, 8
+v_add_lshl_u32  v0, v0, v2, 2
+
+v_bfe_u32       v1, v9, 16, 8
+v_add_lshl_u32  v1, v1, v2, 2
+
+v_bfe_u32       v9, v9, 24, 8
+v_add_lshl_u32  v9, v9, v2, 2
+
+s_waitcnt       vmcnt(2)
+
+ds_bpermute_b32 v7, v0, v7
+ds_bpermute_b32 v8, v0, v8
+#s_waitcnt       lgkmcnt(0)
+#s_barrier
+
+s_waitcnt       vmcnt(1)
+
+ds_bpermute_b32 v12, v1, v12
+ds_bpermute_b32 v13, v1, v13
+#s_waitcnt       lgkmcnt(0)
+#s_barrier
+
+s_waitcnt       vmcnt(0)
+
+ds_bpermute_b32 v14, v9, v14
+ds_bpermute_b32 v15, v9, v15
+s_waitcnt       lgkmcnt(0)
+s_barrier
+
+global_store_dwordx2 v[5:6], v[7:8], off
+global_store_dwordx2 v[10:11], v[12:13], off
+global_store_dwordx2 v[3:4], v[14:15], off
+s_endpgm
