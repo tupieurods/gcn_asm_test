@@ -6,6 +6,7 @@
 #include <string>
 #include <filesystem>
 #include <random>
+#include <array>
 
 #include "CL/cl.h"
 #include "cl2.hpp"
@@ -53,7 +54,6 @@ int main(int argc, char *argv[])
       program = CreateOpenclProgramFromBinary(openclFileFullPath, context, device);
     }
     const cl::Kernel kernel = CreateOpenclKernel(program, KERNEL_NAME);
-
 
     switch(modeIndex)
     {

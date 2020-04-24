@@ -45,6 +45,12 @@
         .arg matrixData, "block*", structure*, 1024, global,          # offset 48
     .text
 # v0 - local_id(0); v1 - local_id(1); v2 - local_id(2)
+
+matrixDataLocalIdx1Address = %v[5:6]
+matrixDataLocalIdx1Value = %v[7:8]
+matrixDataLocalIdx2Address = %v[10:11]
+matrixDataLocalIdx2Value = %v[12:13]
+
 s_load_dwordx2  s[0:1], s[4:5], 0x30                    # get pointer to matrixData
 v_lshl_add_u32  v3, s8, 3, v2                           # gid
 v_lshlrev_b32   v1, 2, v0                               # offset in lindexes0
@@ -60,20 +66,22 @@ v_add_co_u32    v3, vcc, v5, v3
 v_addc_co_u32   v4, vcc, v4, 0, vcc                     # v[3:4] - gid base offset + local_id(0) base offset in matrixData
 s_waitcnt       lgkmcnt(0)                              # wait for s_load_dwordx2 to be finished
 v_add_co_u32    v3, vcc, s0, v3
-v_mov_b32       v5, s1
-v_addc_co_u32    v4, vcc, v5, v4, vcc                   # matrixData pointer + base offsets
-v_add_co_u32    v5, vcc, 0x100, v3
-v_addc_co_u32   v6, vcc, v4, 0, vcc                     # matrixData->v[localIdx1] address
+v_mov_b32       matrixDataLocalIdx1Address[0], s1
+v_addc_co_u32    v4, vcc, matrixDataLocalIdx1Address[0], v4, vcc                   # matrixData pointer + base offsets
+v_add_co_u32    matrixDataLocalIdx1Address[0], vcc, 0x100, v3
+v_addc_co_u32   matrixDataLocalIdx1Address[1], vcc, v4, 0, vcc                     # matrixData->v[localIdx1] address
 global_load_dword v9, v[0:1], off
-global_load_dwordx2 v[7:8], v[5:6], off
+global_load_dwordx2 matrixDataLocalIdx1Value[0:1], matrixDataLocalIdx1Address[0:1], off
 
-v_add_co_u32    v10, vcc, 0x200, v3
-v_addc_co_u32   v11, vcc, v4, 0, vcc                     # matrixData->v[localIdx2] address
-global_load_dwordx2 v[12:13], v[10:11], off
+v_add_co_u32    matrixDataLocalIdx2Address[0], vcc, 0x200, v3
+v_addc_co_u32   matrixDataLocalIdx2Address[1], vcc, v4, 0, vcc                     # matrixData->v[localIdx2] address
+global_load_dwordx2 matrixDataLocalIdx2Value[0:1], matrixDataLocalIdx2Address[0:1], off
 
-v_add_co_u32    v3, vcc, 0x300, v3
-v_addc_co_u32   v4, vcc, v4, 0, vcc                     # matrixData->v[localIdx3] address
-global_load_dwordx2 v[14:15], v[3:4], off
+matrixDataLocalIdx3Address = %v[3:4]
+matrixDataLocalIdx3Value = %v[14:15]
+v_add_co_u32    matrixDataLocalIdx3Address[0], vcc, 0x300, matrixDataLocalIdx3Address[0]
+v_addc_co_u32   matrixDataLocalIdx3Address[1], vcc, matrixDataLocalIdx3Address[1], 0, vcc                     # matrixData->v[localIdx3] address
+global_load_dwordx2 matrixDataLocalIdx3Value[0:1], matrixDataLocalIdx3Address[0:1], off
 
 v_mbcnt_lo_u32_b32  v2, -1, 0
 v_mbcnt_hi_u32_b32  v2, -1, v2                          # v2 = laneId
@@ -93,26 +101,26 @@ v_add_lshl_u32  v9, v9, v2, 2
 
 s_waitcnt       vmcnt(2)
 
-ds_bpermute_b32 v7, v0, v7
-ds_bpermute_b32 v8, v0, v8
+ds_bpermute_b32 matrixDataLocalIdx1Value[0], v0, matrixDataLocalIdx1Value[0]
+ds_bpermute_b32 matrixDataLocalIdx1Value[1], v0, matrixDataLocalIdx1Value[1]
 #s_waitcnt       lgkmcnt(0)
 #s_barrier
 
 s_waitcnt       vmcnt(1)
 
-ds_bpermute_b32 v12, v1, v12
-ds_bpermute_b32 v13, v1, v13
+ds_bpermute_b32 matrixDataLocalIdx2Value[0], v1, matrixDataLocalIdx2Value[0]
+ds_bpermute_b32 matrixDataLocalIdx2Value[1], v1, matrixDataLocalIdx2Value[1]
 #s_waitcnt       lgkmcnt(0)
 #s_barrier
 
 s_waitcnt       vmcnt(0)
 
-ds_bpermute_b32 v14, v9, v14
-ds_bpermute_b32 v15, v9, v15
+ds_bpermute_b32 matrixDataLocalIdx3Value[0], v9, matrixDataLocalIdx3Value[0]
+ds_bpermute_b32 matrixDataLocalIdx3Value[1], v9, matrixDataLocalIdx3Value[1]
 s_waitcnt       lgkmcnt(0)
 s_barrier
 
-global_store_dwordx2 v[5:6], v[7:8], off
-global_store_dwordx2 v[10:11], v[12:13], off
-global_store_dwordx2 v[3:4], v[14:15], off
+global_store_dwordx2 matrixDataLocalIdx1Address[0:1], matrixDataLocalIdx1Value[0:1], off
+global_store_dwordx2 matrixDataLocalIdx2Address[0:1], matrixDataLocalIdx2Value[0:1], off
+global_store_dwordx2 matrixDataLocalIdx3Address[0:1], matrixDataLocalIdx3Value[0:1], off
 s_endpgm
